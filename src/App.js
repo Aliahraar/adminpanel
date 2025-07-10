@@ -1,17 +1,14 @@
 import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-
+import PrivateRoute from './components/PrivateRoute'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
-
-// We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
-
-
+const Login = React.lazy(() => import('./views/login/Login'))
 
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
@@ -24,15 +21,13 @@ const App = () => {
       setColorMode(theme)
     }
 
-    if (isColorModeSet()) {
-      return
-    }
+    if (isColorModeSet()) return
 
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Suspense
         fallback={
           <div className="pt-3 text-center">
@@ -41,10 +36,19 @@ const App = () => {
         }
       >
         <Routes>
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/home" />} />
+          <Route
+            path="/*"
+            element={
+              <PrivateRoute>
+                <DefaultLayout />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Suspense>
-    </HashRouter>
+    </BrowserRouter>
   )
 }
 
